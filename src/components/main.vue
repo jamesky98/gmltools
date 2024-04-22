@@ -1,14 +1,29 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { computed } from "@vue/reactivity";
 import { 
   MDBBtn,
   MDBFile,
+  MDBSelect,
 } from "mdb-vue-ui-kit";
 import { open as openSHP } from 'shapefile'
 import path from "path-browserify";
+import { schemalist } from "../metheods/gml_schema"
 
-const files1 = ref([]);
+// 參數
+  const files1 = ref([]);
+  const selectSchema = ref('');
+  const selectSchemaMU = computed(() => {
+    let selectlist=[];
+    selectlist.push({text: "-未選取-", value: -1})
+    for (let i=0;i<schemalist.length;i++){
+      selectlist.push({text: schemalist[i].tag, value: i})
+    }
+    return selectlist
+  });
+  const selectSchemaDOM = ref();
 
+// 函式
 function loadSHPfiles(event){
   const fReader = new FileReader();
   
@@ -24,9 +39,9 @@ function loadSHPfiles(event){
   // 逐筆檢查檔案
   for (let i=0; i < file_count ; i++){
     let currentFile = filelist[i];
-      console.log(filelist[i]);
+      // console.log(filelist[i]);
     let fileparse = path.parse(currentFile.name);
-      console.log(fileparse);
+      // console.log(fileparse);
     let fileName = fileparse.name;
     let fileExt =  (fileparse.ext).toLowerCase();
     
@@ -45,11 +60,11 @@ function loadSHPfiles(event){
       inputList[fileName].dbf = filelist[i];
     }
   }
-  console.log(inputList);
+  // console.log(inputList);
   // 計算所選SHP數量
   shpList = Object.keys(inputList);
   shpCount = shpList.length
-  console.log(shpCount);
+  // console.log(shpCount);
 
   // 讀取每個shp
   let shpFileData=[];
@@ -70,7 +85,7 @@ function loadSHPfiles(event){
           .then(source => source.read()
             .then(function log(result) {
               if (result.done) { 
-                console.log(shpFileData);
+                // console.log(shpFileData);
                 saveGML(shpFileData);
                 return;
               }
@@ -90,46 +105,8 @@ function loadSHPfiles(event){
 
   // 匯出GML
   function saveGML(data){
-
-    // 電桿格式
-    // let schema = {
-    //   header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
-    //   type: 'UTL_電桿',
-    //   colume: [
-    //     '類別碼',
-    //     '識別碼',
-    //     '管理單位',
-    //     '作業區分',
-    //     '設置日期',
-    //     '電桿編號',
-    //     '長度',
-    //     '材質',
-    //     '使用狀態',
-    //     '資料狀態',
-    //     '備註'
-    //   ]
-    // }
-    // 其他設施格式
-    let schema = {
-      header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
-      type: 'UTL_其他設施',
-      colume: [
-        '類別碼',
-        '識別碼',
-        '管理單位',
-        '作業區分',
-        '設置日期',
-        '設施編號',
-        '設施名稱',
-        '設施長度',
-        '設施寬度',
-        '設施高度',
-        '設施型態',
-        '使用狀態',
-        '資料狀態',
-        '備註'
-      ]
-    }
+    let schema = schemalist[selectSchema.value]
+    // console.log('schema',schema);
 
     let dataStr = '';
     let refData = data;
@@ -141,9 +118,9 @@ function loadSHPfiles(event){
     for (let i = 0; i < refData.length; i++) {
       // 紀錄標頭
       dataStr = dataStr + '    <gml:featureMember>\n';
-      dataStr = dataStr + '        <' + schema.type + '>\n';
+      dataStr = dataStr + '        <' + schema.tag + '>\n';
       dataStr = dataStr + '            <geometry>\n';
-      dataStr = dataStr + '                <gml:Point srsName="EPSG:3826" srsDimension="2">\n';
+      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="EPSG:3826" srsDimension="2">\n';
       dataStr = dataStr + '                    <gml:coordinates>';
       // 幾何資訊
       let pointlist=[];
@@ -160,53 +137,54 @@ function loadSHPfiles(event){
       dataStr = dataStr + '</gml:coordinates>\n';
       dataStr = dataStr + '                </gml:Point>\n';
       dataStr = dataStr + '            </geometry>\n';
-      console.log(dataStr)
+      // console.log(dataStr)
       // 屬性資訊
       let attribute = refData[i].properties
-      console.log(attribute)
-
       for(let j=0;j<schema.colume.length;j++){
-        if(schema.colume[j]==='設置日期'){
-          if(attribute[schema.colume[j]]){
+        if(schema.colume[j][2]==='date'){
+          if(attribute[schema.colume[j][0]]){
             let formatDate = 
-              attribute[schema.colume[j]].getFullYear() + '-' + 
-              String(attribute[schema.colume[j]].getMonth()+1).padStart(2, "0") + '-' + 
-              String(attribute[schema.colume[j]].getDate()).padStart(2, "0");
+              attribute[schema.colume[j][0]].getFullYear() + '-' + 
+              String(attribute[schema.colume[j][0]].getMonth()+1).padStart(2, "0") + '-' + 
+              String(attribute[schema.colume[j][0]].getDate()).padStart(2, "0");
 
-            dataStr = dataStr + '            <' + schema.colume[j] + '>\n';
+            dataStr = dataStr + '            <' + schema.colume[j][0] + '>\n';
             dataStr = dataStr + '                <gml:TimeInstant>\n';
             dataStr = dataStr + '                    <gml:timePosition>' + formatDate + '</gml:timePosition>\n';
             dataStr = dataStr + '                </gml:TimeInstant>\n';
-            dataStr = dataStr + '            </' + schema.colume[j] + '>\n';
+            dataStr = dataStr + '            </' + schema.colume[j][0] + '>\n';
 
+          }else if(schema.colume[j][1]==='O'){
+            dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
           }else{
-            dataStr = dataStr +'            <' + schema.colume[j] + '/>\n'
+            // 拋出錯誤:應為必填欄位
+            // 下方為暫時處理措施
+            dataStr = dataStr + '            <' + schema.colume[j][0] + '>1901-01-01</'+schema.colume[j][0] + '>\n'
           }
-        }else if(schema.colume[j]==='備註'){
-          if(attribute[schema.colume[j]] || attribute[schema.colume[j]]===0){
-            dataStr = dataStr + '            <' + schema.colume[j] + '>' + attribute[schema.colume[j]] +'</'+schema.colume[j]+'>\n'
+        }else if(schema.colume[j][1]==='O'){
+          if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
+            dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0] +'>\n'
           }else{
-            dataStr = dataStr +'            <' + schema.colume[j] + '/>\n'
+            dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
           }
-        }else{
-          if(attribute[schema.colume[j]] || attribute[schema.colume[j]]===0){
-            dataStr = dataStr + '            <' + schema.colume[j] + '>' + attribute[schema.colume[j]] +'</'+schema.colume[j]+'>\n'
+        }else if(schema.colume[j][1]==='M'){
+          if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
+            dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0]+'>\n'
           }else{
-            dataStr = dataStr + '            <' + schema.colume[j] + '>0</'+schema.colume[j]+'>\n'
+            // 拋出錯誤:應為必填欄位
+            // 下方為暫時處理措施
+            dataStr = dataStr + '            <' + schema.colume[j][0] + '>0</'+schema.colume[j][0]+'>\n'
           }
         }
       }
 
       // 紀錄標尾
-      dataStr = dataStr + '        </' + schema.type + '>\n';
+      dataStr = dataStr + '        </' + schema.tag + '>\n';
       dataStr = dataStr + '    </gml:featureMember>\n';
     }
-    // console.log('dataStr',dataStr);
-
     // 填入檔尾
     dataStr = dataStr + '</UTL>\n';
 
-    console.log(dataStr)
     //藉型別陣列建構的 blob 來建立 URL
     let fileName = "export.gml";
     // 添加BOM讓Excel可以判斷編碼
@@ -227,10 +205,16 @@ function loadSHPfiles(event){
 </script>
 
 <template>
+  <MDBSelect 
+    label="選擇類型" 
+    class="mb-3"
+    v-model:options="selectSchemaMU"
+    v-model:selected="selectSchema" 
+    ref="selectSchemaDOM" />
   <MDBFile 
     multiple
     v-model="files1" 
-    label="Default file input example" 
+    label="選擇shape file(請同時選擇.shp 及 .dbf)" 
     accept=".shp, .dbf, prj" 
     @change="loadSHPfiles($event)"/>
 </template>

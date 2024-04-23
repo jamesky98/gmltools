@@ -2,14 +2,12 @@
 import { ref } from 'vue';
 import { computed } from "@vue/reactivity";
 import { 
-  MDBBtn,
-  MDBFile,
-  MDBSelect,
+  MDBBtn, MDBFile, MDBSelect, MDBDatatable,
 } from "mdb-vue-ui-kit";
-import { open as openSHP } from 'shapefile'
 import path from "path-browserify";
 import { schemalist } from "../metheods/gml_schema"
-// import { loadSHPfiles } from "../metheods/shp_io"
+import { dataToGML } from "../metheods/gml_io"
+import { loadSHPfile } from "../metheods/shp_io"
 
 // 參數
   const files1 = ref([]);
@@ -24,6 +22,37 @@ import { schemalist } from "../metheods/gml_schema"
   });
   const selectSchemaDOM = ref();
 
+  const shpTableData = {
+    columns: [
+      { label: "Name", field: "name" },
+      { label: "Position", field: "position" },
+      { label: "Office", field: "office" },
+      { label: "Contact", field: "contact", sort: false }
+    ],
+    rows: [
+      {
+        name: "Tiger Nixon",
+        position: "System Architect",
+        office: "Edinburgh",
+        phone: "+48000000000",
+        email: "tiger.nixon@gmail.com"
+      },
+      {
+        name: "Sonya Frost",
+        position: "Software Engineer",
+        office: "Edinburgh",
+        phone: "+53456123456",
+        email: "sfrost@gmail.com"
+      },
+      {
+        name: "Tatyana Fitzpatrick",
+        position: "Regional Director",
+        office: "London",
+        phone: "+42123432456",
+        email: "tfitz@gmail.com"
+      }
+    ]
+  }
 // 函式
 function loadSHPfiles(event){
   const fReader = new FileReader();
@@ -68,121 +97,20 @@ function loadSHPfiles(event){
   // console.log(shpCount);
 
   // 讀取每個shp
-  let shpFileData=[];
   for (let i=0; i<shpCount; i++ ){
-    // 載入shp
-    let reader_shp = new FileReader();
-    let shpBuffer;
-    // 載入dbf
-    let reader_dbf = new FileReader();
-    let dbfBuffer
-
-    reader_shp.onload = function(e) {
-      shpBuffer = e.target.result;
-      reader_dbf.onload = function(e) {
-        dbfBuffer = e.target.result;
-
-        let geoJson = openSHP(shpBuffer, dbfBuffer, {encoding: 'Big5'})
-          .then(source => source.read()
-            .then(function log(result) {
-              if (result.done) { 
-                // console.log(shpFileData);
-                saveGML(shpFileData);
-                return;
-              }
-              shpFileData.push(result.value);
-              return source.read().then(log);
-            })
-          )
-        .catch(error => console.error(error.stack));
-      }
-      reader_dbf.readAsArrayBuffer(inputList[shpList[i]].dbf);
-    }
-    reader_shp.readAsArrayBuffer(inputList[shpList[i]].shp);
+    loadSHPfile(inputList[shpList[i]].shp, inputList[shpList[i]].dbf)
+    .then(res=>{
+      console.log('main',res)
+      console.log(selectSchema)
+      console.log(schemalist[selectSchema])
+      saveGML(res, schemalist[selectSchema])
+    })
   }
 }
 
 // 匯出GML
-function saveGML(data){
-  let schema = schemalist[selectSchema.value]
-  // console.log('schema',schema);
-
-  let dataStr = '';
-  let refData = data;
-  // console.log('refData',refData);    
-  // 填入檔頭
-  dataStr = dataStr + '<?xml version="1.0" encoding="utf-8"?>\n' +
-    schema.header;
-  // 填入資料
-  for (let i = 0; i < refData.length; i++) {
-    // 紀錄標頭
-    dataStr = dataStr + '    <gml:featureMember>\n';
-    dataStr = dataStr + '        <' + schema.tag + '>\n';
-    dataStr = dataStr + '            <geometry>\n';
-    dataStr = dataStr + '                <gml:' + schema.type + ' srsName="EPSG:3826" srsDimension="2">\n';
-    dataStr = dataStr + '                    <gml:coordinates>';
-    // 幾何資訊
-    let pointlist=[];
-    if(refData[i].geometry.type === 'Point'){
-      pointlist.push(refData[i].geometry.coordinates)
-    }else{
-      pointlist = refData[i].geometry.coordinates;
-    }
-    
-    for (let j=0; j < pointlist.length; j++){
-      if(j!==0){dataStr = dataStr + ' ' }
-      dataStr = dataStr + pointlist[j][0] + ' ' + pointlist[j][1]
-    }
-    dataStr = dataStr + '</gml:coordinates>\n';
-    dataStr = dataStr + '                </gml:' + schema.type + '>\n';
-    dataStr = dataStr + '            </geometry>\n';
-    // console.log(dataStr)
-    // 屬性資訊
-    let attribute = refData[i].properties
-    for(let j=0;j<schema.colume.length;j++){
-      if(schema.colume[j][2]==='date'){
-        if(attribute[schema.colume[j][0]]){
-          let formatDate = 
-            attribute[schema.colume[j][0]].getFullYear() + '-' + 
-            String(attribute[schema.colume[j][0]].getMonth()+1).padStart(2, "0") + '-' + 
-            String(attribute[schema.colume[j][0]].getDate()).padStart(2, "0");
-
-          dataStr = dataStr + '            <' + schema.colume[j][0] + '>\n';
-          dataStr = dataStr + '                <gml:TimeInstant>\n';
-          dataStr = dataStr + '                    <gml:timePosition>' + formatDate + '</gml:timePosition>\n';
-          dataStr = dataStr + '                </gml:TimeInstant>\n';
-          dataStr = dataStr + '            </' + schema.colume[j][0] + '>\n';
-
-        }else if(schema.colume[j][1]==='O'){
-          dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
-        }else{
-          // 拋出錯誤:應為必填欄位
-          // 下方為暫時處理措施
-          dataStr = dataStr + '            <' + schema.colume[j][0] + '>1901-01-01</'+schema.colume[j][0] + '>\n'
-        }
-      }else if(schema.colume[j][1]==='O'){
-        if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
-          dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0] +'>\n'
-        }else{
-          dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
-        }
-      }else if(schema.colume[j][1]==='M'){
-        if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
-          dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0]+'>\n'
-        }else{
-          // 拋出錯誤:應為必填欄位
-          // 下方為暫時處理措施
-          dataStr = dataStr + '            <' + schema.colume[j][0] + '>0</'+schema.colume[j][0]+'>\n'
-        }
-      }
-    }
-
-    // 紀錄標尾
-    dataStr = dataStr + '        </' + schema.tag + '>\n';
-    dataStr = dataStr + '    </gml:featureMember>\n';
-  }
-  // 填入檔尾
-  dataStr = dataStr + '</UTL>\n';
+function saveGML(data, schema){
+  let dataStr = dataToGML(data, schema);
 
   //藉型別陣列建構的 blob 來建立 URL
   let fileName = "export.gml";
@@ -216,4 +144,7 @@ function saveGML(data){
     label="選擇shape file(請同時選擇.shp 及 .dbf)" 
     accept=".shp, .dbf, prj" 
     @change="loadSHPfiles($event)"/>
+  <MDBDatatable 
+    :dataset="shpTableData"
+    />
 </template>

@@ -22,37 +22,21 @@ import { loadSHPfile } from "../metheods/shp_io"
   });
   const selectSchemaDOM = ref();
 
-  const shpTableData = {
-    columns: [
-      { label: "Name", field: "name" },
-      { label: "Position", field: "position" },
-      { label: "Office", field: "office" },
-      { label: "Contact", field: "contact", sort: false }
-    ],
-    rows: [
-      {
-        name: "Tiger Nixon",
-        position: "System Architect",
-        office: "Edinburgh",
-        phone: "+48000000000",
-        email: "tiger.nixon@gmail.com"
-      },
-      {
-        name: "Sonya Frost",
-        position: "Software Engineer",
-        office: "Edinburgh",
-        phone: "+53456123456",
-        email: "sfrost@gmail.com"
-      },
-      {
-        name: "Tatyana Fitzpatrick",
-        position: "Regional Director",
-        office: "London",
-        phone: "+42123432456",
-        email: "tfitz@gmail.com"
-      }
-    ]
-  }
+  const tableCols = [
+    { label: "#", field: "id" },
+    { label: "檔案名稱", field: "shpfile" },
+    { label: "圖徵數量", field: "count" },
+    { label: "坐標系統", field: "csc" },
+    { label: "類型", field: "schematype" },
+    { label: "匯出", field: "schematype" },
+  ];
+  const tableRows = ref([]);
+  const shpTableData = computed(()=>{
+    return {
+      columns: tableCols,
+      rows: tableRows.value,
+    }
+  })
 // 函式
 function loadSHPfiles(event){
   const fReader = new FileReader();
@@ -96,14 +80,19 @@ function loadSHPfiles(event){
   shpCount = shpList.length
   // console.log(shpCount);
 
+  // 清空列表
+  tableRows.value=[];
   // 讀取每個shp
   for (let i=0; i<shpCount; i++ ){
     loadSHPfile(inputList[shpList[i]].shp, inputList[shpList[i]].dbf)
     .then(res=>{
-      console.log('main',res)
-      console.log(selectSchema)
-      console.log(schemalist[selectSchema])
-      saveGML(res, schemalist[selectSchema])
+      // 填入列表資料
+      tableRows.value.push({
+        id: i,
+        shpfile: shpList[i],
+        count: res.length,
+      })
+      // saveGML(res, schemalist[selectSchema.value])
     })
   }
 }
@@ -145,6 +134,8 @@ function saveGML(data, schema){
     accept=".shp, .dbf, prj" 
     @change="loadSHPfiles($event)"/>
   <MDBDatatable 
+    sortField="id"
+    striped
     :dataset="shpTableData"
     />
 </template>

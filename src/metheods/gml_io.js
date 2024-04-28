@@ -2,7 +2,8 @@
 function dataToGML(data, schema){
   let dataStr = '';
   let refData = data;
-  // console.log('refData',refData);    
+  // console.log('refData',refData);  
+  // console.log('schema',schema);   
   // 填入檔頭
   dataStr = dataStr + '<?xml version="1.0" encoding="utf-8"?>\n' +
     schema.header;

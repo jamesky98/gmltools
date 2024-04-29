@@ -58,15 +58,15 @@ import JSZip from "jszip"
   })
   function selecSHP(x){
     exportFilesList=x;
-    console.log('x',x)
+    // console.log('x',x)
     // 把選擇結果填入tableRows中
     let shplist = dataRows.value
     shplist.forEach(x=>{x.selected=false});
     for(let i=0;i<x.length;i++){
       shplist[x[i]].selected=true;
     }
-    console.log('dataRows',dataRows.value);
-    console.log('tableRows',tableRows.value);
+    // console.log('dataRows',dataRows.value);
+    // console.log('tableRows',tableRows.value);
     // x是datatable的rows date中被選擇的index
     // 從rows date(即shpTableData.value.rows)中取出列資料的[檔案名稱]
     // 因為inputList中的資料是由[檔案名稱]來查找v-model:selected="selectSchema" 
@@ -153,7 +153,7 @@ async function loadSHPfiles(event){
   tableRows.value = tempRows;
   dataRows.value = tempDatas;
   isloadevent=true
-  console.log('tableRows',tableRows.value)
+  // console.log('tableRows',tableRows.value)
 }
 
 function renderDT(e){

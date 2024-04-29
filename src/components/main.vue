@@ -15,6 +15,7 @@ import JSZip from "jszip"
   // 將多筆檔案建立成list表
   let inputList = {};
   let exportFilesList = [];
+  let isloadevent = false;
 
   const schemaSL=ref();
 
@@ -48,6 +49,7 @@ import JSZip from "jszip"
     { label: "匯出", field: "export" },
   ];
   const tableRows = ref([]);
+  const dataRows = ref([]);
   const shpTableData = computed(()=>{
     return {
       columns: tableCols,
@@ -56,13 +58,15 @@ import JSZip from "jszip"
   })
   function selecSHP(x){
     exportFilesList=x;
-
+    console.log('x',x)
     // 把選擇結果填入tableRows中
-    let shplist = tableRows.value
+    let shplist = dataRows.value
     shplist.forEach(x=>{x.selected=false});
     for(let i=0;i<x.length;i++){
       shplist[x[i]].selected=true;
     }
+    console.log('dataRows',dataRows.value);
+    console.log('tableRows',tableRows.value);
     // x是datatable的rows date中被選擇的index
     // 從rows date(即shpTableData.value.rows)中取出列資料的[檔案名稱]
     // 因為inputList中的資料是由[檔案名稱]來查找v-model:selected="selectSchema" 
@@ -94,6 +98,8 @@ async function loadSHPfiles(event){
       inputList[fileName]={
         shp: null,
         dbf: null,
+        prj: null,
+
       }
     }
 
@@ -101,6 +107,8 @@ async function loadSHPfiles(event){
       inputList[fileName].shp = filelist[i];
     }else if(fileExt === '.dbf'){
       inputList[fileName].dbf = filelist[i];
+    }else if(fileExt === '.prj'){
+      inputList[fileName].prj = filelist[i];
     }
   }
   // console.log(inputList);
@@ -111,48 +119,68 @@ async function loadSHPfiles(event){
 
   // 清空列表
   tableRows.value=[];
+  dataRows.value=[];
   let tempRows=[];
+  let tempDatas=[];
   // 讀取每個shp
   for (let i=0; i<shpCount; i++ ){
-    await loadSHPfile(inputList[shpList[i]].shp, inputList[shpList[i]].dbf)
+    await loadSHPfile(inputList[shpList[i]].shp, inputList[shpList[i]].dbf, inputList[shpList[i]].prj)
     .then(res=>{
       // 填入列表資料
-      return tempRows.push({
-        selected: false,
-        id: i,
-        shpfile: shpList[i],
-        count: res.length,
-        rowdata: res,
-        csr: 'EPSG:3826',
-        schema: "",
-        export: null,
-        exblob: null,
-      })
+      return [
+        tempDatas.push({
+          selected: false,
+          id: i,
+          shpfile: shpList[i],
+          count: res.geoData.length,
+          rowdata: res.geoData,
+          csr: res.crs,
+          schema: "",
+          export: null,
+          exblob: null,
+        }),
+        tempRows.push({
+          id: i,
+          shpfile: shpList[i],
+          count: res.geoData.length,
+          csr: res.crs,
+          export: null,
+        })
+      ]
       // saveGML(res, schemalist[selectSchema.value])
     })
   }
-  tableRows.value=tempRows;
+  tableRows.value = tempRows;
+  dataRows.value = tempDatas;
+  isloadevent=true
+  console.log('tableRows',tableRows.value)
 }
 
 function renderDT(e){
   // console.log('render')
+  // console.log(isloadevent)
   // console.log(e)
-  if(e.rows.length>0){
-    for (let i=0;i<e.rows.length;i++){
-      let sl = document.getElementById(`schemaselctor${i}`);
-      let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(6)`);
-      // console.log(togetDOM)
-      togetDOM.innerHTML="";
-      togetDOM.append(sl)
+  if(isloadevent){
+    if(e.rows.length>0){
+      for (let i=0;i<e.rows.length;i++){
+        let sl = document.getElementById(`schemaselctor${i}`);
+        let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(6)`);
+        // console.log(togetDOM)
+        togetDOM.innerHTML="";
+        togetDOM.append(sl)
+      }
     }
+    // console.log('data',tableRows.value)
+    isloadevent=false
   }
-  // console.log('data',tableRows.value)
+  
 }
 
 // 匯出GML
 function doExport(){
   let x=exportFilesList;
-  let shpfiles = tableRows.value;
+  let shpfiles = dataRows.value;
+  let shpTable = tableRows.value;
   
   for (let i=0;i<x.length;i++){
     let schemaIndex=shpfiles[x[i]].schema;
@@ -162,6 +190,7 @@ function doExport(){
         // console.log(res.outerHTML)
         res.link.innerHTML=shpfiles[x[i]].shpfile;
         shpfiles[x[i]].export = res.link.outerHTML;
+        shpTable[x[i]].export = res.link.outerHTML;
         shpfiles[x[i]].exblob = res.blob;
       })
   }
@@ -192,7 +221,7 @@ function saveGML(data, schema, shpfilename){
 }
 
 async function downLoadAll(){
-  let shpfiles = tableRows.value;
+  let shpfiles = dataRows.value;
 
   const zip = new JSZip();
   for (let i=0; i<shpfiles.length; i++){
@@ -229,8 +258,8 @@ async function downLoadAll(){
         <MDBFile 
           multiple
           v-model="files1" 
-          label="選擇shape file(請同時選擇.shp 及 .dbf)" 
-          accept=".shp, .dbf, prj" 
+          label="選擇shape file(請同時選擇.shp 及 .dbf 或 .prj)" 
+          accept=".shp, .dbf, .prj" 
           @change="loadSHPfiles($event)"/>
       </MDBCol>
       <MDBCol class="d-flex align-items-center justify-content-center">
@@ -256,6 +285,7 @@ async function downLoadAll(){
         @selected-indexes="selecSHP($event)"
         @render="renderDT($event)"
         />
+        <!-- @render="renderDT($event)" -->
     </MDBRow>
   </MDBContainer>
   <div>
@@ -263,7 +293,7 @@ async function downLoadAll(){
       :id='"schemaselctor"+index'
       class="schemaselctor"
       v-model:options="selectSchemaMU[index]"
-      v-model:selected="tableRows[index].schema" 
+      v-model:selected="dataRows[index].schema" 
       />
   </div>
   

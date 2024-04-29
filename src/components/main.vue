@@ -32,9 +32,9 @@ import JSZip from "jszip"
     }
 
     for (let i=0;i<tableRows.value.length;i++){
-      result.push(selectlist)
+      result.push(JSON.parse(JSON.stringify(selectlist)))
     }
-
+    // console.log(result)
     return result
   });
 
@@ -44,7 +44,7 @@ import JSZip from "jszip"
     { label: "檔案名稱", field: "shpfile" },
     { label: "圖徵數量", field: "count" },
     { label: "坐標系統", field: "csr" },
-    { label: "類型", field: "schema" },
+    { label: "類型" },
     { label: "匯出", field: "export" },
   ];
   const tableRows = ref([]);
@@ -56,6 +56,13 @@ import JSZip from "jszip"
   })
   function selecSHP(x){
     exportFilesList=x;
+
+    // 把選擇結果填入tableRows中
+    let shplist = tableRows.value
+    shplist.forEach(x=>{x.selected=false});
+    for(let i=0;i<x.length;i++){
+      shplist[x[i]].selected=true;
+    }
     // x是datatable的rows date中被選擇的index
     // 從rows date(即shpTableData.value.rows)中取出列資料的[檔案名稱]
     // 因為inputList中的資料是由[檔案名稱]來查找v-model:selected="selectSchema" 
@@ -111,6 +118,7 @@ async function loadSHPfiles(event){
     .then(res=>{
       // 填入列表資料
       return tempRows.push({
+        selected: false,
         id: i,
         shpfile: shpList[i],
         count: res.length,
@@ -127,16 +135,18 @@ async function loadSHPfiles(event){
 }
 
 function renderDT(e){
-  console.log(e)
+  // console.log('render')
+  // console.log(e)
   if(e.rows.length>0){
     for (let i=0;i<e.rows.length;i++){
       let sl = document.getElementById(`schemaselctor${i}`);
       let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(6)`);
-      console.log(togetDOM)
+      // console.log(togetDOM)
       togetDOM.innerHTML="";
       togetDOM.append(sl)
     }
   }
+  // console.log('data',tableRows.value)
 }
 
 // 匯出GML
@@ -145,8 +155,8 @@ function doExport(){
   let shpfiles = tableRows.value;
   
   for (let i=0;i<x.length;i++){
-    let schemaName=shpfiles[x[i]].schema;
-    let schema = schemalist.find(x=>x.tag===schemaName);
+    let schemaIndex=shpfiles[x[i]].schema;
+    let schema = schemalist[schemaIndex];
     saveGML(shpfiles[x[i]].rowdata, schema, shpfiles[x[i]].shpfile)
       .then(res=>{
         // console.log(res.outerHTML)
@@ -210,12 +220,6 @@ async function downLoadAll(){
   URL.revokeObjectURL(href);
 }
 
-onMounted(()=>{
-  // schemaSL = document.getElementsByClassName('schemaselctor')[0]
-  // console.log(schemaSL)
-
-})
-
 </script>
 
 <template>
@@ -254,12 +258,12 @@ onMounted(()=>{
         />
     </MDBRow>
   </MDBContainer>
-  <div class="d-none">
+  <div>
     <MDBSelect v-for="(x, index) in tableRows"
       :id='"schemaselctor"+index'
       class="schemaselctor"
       v-model:options="selectSchemaMU[index]"
-      
+      v-model:selected="tableRows[index].schema" 
       />
   </div>
   

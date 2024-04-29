@@ -25,13 +25,18 @@ import JSZip from "jszip"
   const selectSchema = ref('');
   const selectSchemaMU = computed(() => {
     let selectlist=[];
+    let result=[];
     selectlist.push({text: "-未選取-", value: -1})
     for (let i=0;i<schemalist.length;i++){
       selectlist.push({text: schemalist[i].tag, value: i})
     }
-    return selectlist
+
+    for (let i=0;i<tableRows.value.length;i++){
+      result.push(selectlist)
+    }
+
+    return result
   });
-  const selectSchemaDOM = ref();
 
   // datatable
   const tableCols = [
@@ -124,11 +129,13 @@ async function loadSHPfiles(event){
 function renderDT(e){
   console.log(e)
   if(e.rows.length>0){
-    let sl = document.getElementById('schemaselctor1');
-    let togetDOM = document.querySelector(`tr[data-mdb-index="0"]>td:nth-child(6)`);
-    console.log(togetDOM)
-    togetDOM.innerHTML="";
-    togetDOM.append(sl)
+    for (let i=0;i<e.rows.length;i++){
+      let sl = document.getElementById(`schemaselctor${i}`);
+      let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(6)`);
+      console.log(togetDOM)
+      togetDOM.innerHTML="";
+      togetDOM.append(sl)
+    }
   }
 }
 
@@ -247,12 +254,14 @@ onMounted(()=>{
         />
     </MDBRow>
   </MDBContainer>
-  <MDBSelect 
-    id="schemaselctor1"
-    class="schemaselctor"
-    v-model:options="selectSchemaMU"
-    
-    ref="selectSchemaDOM" />
+  <div class="d-none">
+    <MDBSelect v-for="(x, index) in tableRows"
+      :id='"schemaselctor"+index'
+      class="schemaselctor"
+      v-model:options="selectSchemaMU[index]"
+      
+      />
+  </div>
   
   
   

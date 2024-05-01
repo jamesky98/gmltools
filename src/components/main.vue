@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { computed } from "@vue/reactivity";
 import { 
   MDBContainer, MDBRow, MDBCol,
   MDBBtn, MDBFile, MDBSelect, MDBDatatable,
+  MDBScrollbar, MDBTextarea,
 } from "mdb-vue-ui-kit";
 import path from "path-browserify";
 import { schemalist } from "../metheods/gml_schema"
@@ -17,13 +18,50 @@ import JSZip from "jszip"
   let exportFilesList = [];
   let isloadevent = false;
 
-  const schemaSL=ref();
+  const msgArray = ref(['====== 準備完畢 ======']);
+  const pMessage = computed(()=>{
+    return msgArray.value.join('\n')
+  })
+
+  watch(pMessage,(newVal,oldVal)=>{
+    // console.log('watch')
+    // txtAreaKey.value = (txtAreaKey.value>10)?0:txtAreaKey.value+1;
+    msgMoveToEnd()
+  },{
+    flush: 'post'
+  })
+
+  function msgMoveToEnd(){
+    // console.log('msgMoveToEnd')
+    let msgbox = document.getElementById('msgTextarea');
+    msgbox.scrollTop = msgbox.scrollHeight;
+    // console.log(msgbox.scrollTop, msgbox.scrollHeight)
+  }
+
+  const shpTableMaxHeight = ref();
+
+  function resizeSHPTable(){
+    let windowH = window.innerHeight;
+    // console.log('winH:',windowH)
+    // let appP = document.getElementById('app').style.paddingRight;
+    let appP = parseFloat(window.getComputedStyle(document.getElementById('app'), null).getPropertyValue('padding-top'))
+    // console.log('appP:',appP)
+    let btnH = document.getElementById('btnbox').getBoundingClientRect().height;
+    // console.log('btnH:',btnH)
+    let msgH = document.getElementById('msgbox').getBoundingClientRect().height;
+    // console.log('msgH:',msgH)
+    shpTableMaxHeight.value = windowH - (appP * 2) - btnH - msgH - 54;
+    
+    // console.log('shpTableMaxHeight',shpTableMaxHeight.value)
+  }
+  window.addEventListener('resize',()=>{
+    resizeSHPTable();
+  })
 
   // 讀取檔案元件的參數
   const files1 = ref([]);
 
   // 下拉式選單的參數
-  const selectSchema = ref('');
   const selectSchemaMU = computed(() => {
     let selectlist=[];
     let result=[];
@@ -42,7 +80,7 @@ import JSZip from "jszip"
   // datatable
   const tableCols = [
     { label: "#", field: "id" },
-    { label: "檔案名稱", field: "shpfile" },
+    { label: "檔案名稱", field: "shpfileName" },
     { label: "圖徵數量", field: "count" },
     { label: "坐標系統", field: "csr" },
     { label: "類型" },
@@ -124,14 +162,15 @@ async function loadSHPfiles(event){
   let tempDatas=[];
   // 讀取每個shp
   for (let i=0; i<shpCount; i++ ){
-    await loadSHPfile(inputList[shpList[i]].shp, inputList[shpList[i]].dbf, inputList[shpList[i]].prj)
+    await loadSHPfile(inputList[shpList[i]], msgArray.value)
     .then(res=>{
+      msgArray.value.push('[訊息] ====== 共計讀取 ' + shpCount +' 個 shp files ======');
       // 填入列表資料
       return [
         tempDatas.push({
           selected: false,
           id: i,
-          shpfile: shpList[i],
+          shpfileName: shpList[i],
           count: res.geoData.length,
           rowdata: res.geoData,
           csr: res.crs,
@@ -141,7 +180,7 @@ async function loadSHPfiles(event){
         }),
         tempRows.push({
           id: i,
-          shpfile: shpList[i],
+          shpfileName: shpList[i],
           count: res.geoData.length,
           csr: res.crs,
           export: null,
@@ -184,12 +223,16 @@ function doExport(){
   
   for (let i=0;i<x.length;i++){
     let schemaIndex=shpfiles[x[i]].schema;
-    if(schemaIndex<0) { continue; }
+    let shpName = shpfiles[x[i]].shpfileName;
+    if(schemaIndex<0) { 
+      msgArray.value.push('[警告] #' + x[i] + ' [' + shpName + '] 未設定[類型](Schema)')
+      continue; 
+    }
     let schema = schemalist[schemaIndex];
-    saveGML(shpfiles[x[i]].rowdata, schema, shpfiles[x[i]].shpfile)
+    saveGML(shpfiles[x[i]].rowdata, schema, shpName, msgArray.value)
       .then(res=>{
         // console.log(res.outerHTML)
-        res.link.innerHTML=shpfiles[x[i]].shpfile;
+        res.link.innerHTML=shpName;
         shpfiles[x[i]].export = res.link.outerHTML;
         shpTable[x[i]].export = res.link.outerHTML;
         shpfiles[x[i]].exblob = res.blob;
@@ -198,7 +241,7 @@ function doExport(){
   // console.log(shpfiles);
 }
 
-function saveGML(data, schema, shpfilename){
+function saveGML(data, schema, shpfilename, callbakMsg){
   return new Promise((resole,reject)=>{
     let dataStr = dataToGML(data, schema);
     //藉型別陣列建構的 blob 來建立 URL
@@ -227,7 +270,7 @@ async function downLoadAll(){
   const zip = new JSZip();
   for (let i=0; i<shpfiles.length; i++){
     if(shpfiles[i].exblob){
-      zip.file(shpfiles[i].shpfile+'.gml', shpfiles[i].exblob)
+      zip.file(shpfiles[i].shpfileName+'.gml', shpfiles[i].exblob)
     }
   }
 
@@ -250,43 +293,68 @@ async function downLoadAll(){
   URL.revokeObjectURL(href);
 }
 
+
+onMounted(()=>{
+  resizeSHPTable();
+})
+
 </script>
 
 <template>
-  <MDBContainer>
-    <MDBRow class="pb-3 border-bottom">
-      <MDBCol col="8">
-        <MDBFile 
-          multiple
-          v-model="files1" 
-          label="選擇shape file(請同時選擇.shp 及 .dbf 或 .prj)" 
-          accept=".shp, .dbf, .prj" 
-          @change="loadSHPfiles($event)"/>
-      </MDBCol>
-      <MDBCol class="d-flex align-items-center justify-content-center">
-        <MDBBtn 
-          color="primary"
-          @click="doExport"
-        >產生GML</MDBBtn>
-        <MDBBtn 
-          color="primary"
-          @click="downLoadAll"
-        >全部下載</MDBBtn>
+  <MDBContainer class="h-100 d-flex flex-column">
+    <MDBRow class="flex-grow-1 overflow-hidden">
+      <MDBCol class="h-100 d-flex flex-column">
+        <!-- 操作列 -->
+        <MDBRow id="btnbox" class="pb-3 border-bottom">
+          <MDBCol col="8">
+            <MDBFile 
+              multiple
+              v-model="files1" 
+              label="選擇shape file(請同時選擇.shp 及 .dbf 或 .prj)" 
+              accept=".shp, .dbf, .prj" 
+              @change="loadSHPfiles($event)"/>
+          </MDBCol>
+          <MDBCol class="d-flex align-items-center justify-content-center">
+            <MDBBtn 
+              color="primary"
+              @click="doExport"
+            >產生GML</MDBBtn>
+            <MDBBtn 
+              color="primary"
+              @click="downLoadAll"
+            >全部下載</MDBBtn>
+          </MDBCol>
+        </MDBRow>
+        <!-- 列表 -->
+        <MDBRow id="shpbox" class="flex-grow-1 overflow-hidden" ref="shpBox">
+          <MDBDatatable 
+            fixedHeader
+            selectable  
+            multi
+            hover
+            sortField="id"
+            sortOrder="asc"
+            striped
+            noFoundMessage="目前尚無資料"
+            :maxHeight="shpTableMaxHeight"
+            :dataset="shpTableData"
+            @selected-indexes="selecSHP($event)"
+            @render="renderDT($event)"
+            />
+        </MDBRow>
       </MDBCol>
     </MDBRow>
-    <MDBRow>
-      <MDBDatatable 
-        selectable  
-        multi
-        hover
-        sortField="id"
-        sortOrder="asc"
-        striped
-        :dataset="shpTableData"
-        @selected-indexes="selecSHP($event)"
-        @render="renderDT($event)"
-        />
-        <!-- @render="renderDT($event)" -->
+    <!-- 訊息列 -->
+    <MDBRow id="msgbox" style="height: max-content;">
+      <MDBCol class="h-100 p-2">
+        <MDBTextarea 
+          id="msgTextarea"
+          readonly
+          rows="4"
+          style="max-height: calc(1.6 * 4rem);"
+          v-model="pMessage"
+          />
+      </MDBCol>
     </MDBRow>
   </MDBContainer>
   <div>
@@ -303,10 +371,11 @@ async function downLoadAll(){
 
 </template>
 <style>
+
 .datatable {
   --mdb-datatable-color: #000000 !important;
   /* --mdb-datatable-background-color: #64B5F6 !important; */
-  --mdb-datatable-accent-bg: #E0E0E0 !important;
+  --mdb-datatable-accent-bg: #F0F0F0 !important;
   /* --mdb-datatable-hover-tbody-tr-transition: #90CAF9 0.2s ease-in !important; */
   --mdb-datatable-hover-bg: #FFF9C4 !important;
 }

@@ -3,28 +3,37 @@ import { open as openSHP } from 'shapefile'
 import { crslist } from "../metheods/csr"
 
 // 函式
-function loadSHPfile(shpFile, dbfFile, prjFile){
+function loadSHPfile(inputFile, callbakMsg){
+  let shpFile = inputFile.shp
+  let dbfFile = inputFile.dbf
+  let prjFile = inputFile.prj
+
   return new Promise(async (resolve, reject)=>{
     let shpFileData=[];
     // 載入shp
-    let shpBuffer = await readSHP(shpFile);
+    let shpBuffer = await readSHP(shpFile, callbakMsg);
     // 載入dbf
     let dbfBuffer = null;
     if (dbfFile){
-      dbfBuffer = await readDBF(dbfFile);
+      dbfBuffer = await readDBF(dbfFile, callbakMsg);
     }
     // 載入prj
     let prjBuffer = null;
     let crs = 'EPSG:3826'
     if(prjFile){
-      prjBuffer = await readPRJ(prjFile);
+      prjBuffer = await readPRJ(prjFile, callbakMsg);
       // 判斷EPSG...
       let esri_name = prjBuffer.split("\"")[1];
       // 從列表中找尋對應的EPSG
       let cslist_idx = crslist.findIndex(x=>x.esri_name===esri_name);
       if(cslist_idx>=0){
         crs = crslist[cslist_idx].epsg_code;
+        callbakMsg.push('[訊息] prj檔對應 ' + crs + ' 坐標系統')
+      }else{
+        callbakMsg.push('[訊息] prj檔無法對應，預設使用 EPSG:3826 坐標系統')
       }
+    }else{
+      callbakMsg.push('[訊息] 無prj檔，預設使用 EPSG:3826 坐標系統')
     }
 
     let geoData = openSHP(shpBuffer, dbfBuffer, {encoding: 'Big5'})
@@ -42,52 +51,69 @@ function loadSHPfile(shpFile, dbfFile, prjFile){
           return source.read().then(log);
         })
       )
-    .catch(error => reject(console.error(error.stack)));
-    // console.log('geoJson',geoJson);
-    // resolve({
-    //   geoData:geoData,
-    //   crs:crs,
-    // })
+    .catch(error => {
+      callbakMsg.push('[錯誤] ' + error.stack)
+      reject(console.error(error.stack));
+    });
   })
 }
 
 
-function readSHP(shpFile){
+function readSHP(shpFile, callbakMsg){
   // 載入shp
   let reader_shp = new FileReader();
   let shpBuffer;
   return new Promise((resolve,reject)=>{
-    reader_shp.onload = function(e_shp) {
-      shpBuffer = e_shp.target.result;
-      resolve(shpBuffer)
+    try {
+      reader_shp.onload = function(e_shp) {
+        callbakMsg.push('[訊息] - - - - - -> 讀取完成')
+        shpBuffer = e_shp.target.result;
+        resolve(shpBuffer)
+      }
+      reader_shp.readAsArrayBuffer(shpFile);
+      callbakMsg.push('[訊息] >>>開始讀取' + shpFile.name);
+    } catch(e){
+      callbakMsg.push('[訊息] ' + shpFile.name + '讀取錯誤:' + e );
     }
-    reader_shp.readAsArrayBuffer(shpFile);
   })
 }
 
-function readDBF(dbfFile){
+function readDBF(dbfFile, callbakMsg){
   // 載入dbf
   let reader_dbf = new FileReader();
   let dbfBuffer;
   return new Promise((resolve,reject)=>{
-    reader_dbf.onload = function(e_dbf) {
-      dbfBuffer = e_dbf.target.result;
-      resolve(dbfBuffer)
+    try {
+
+      reader_dbf.onload = function(e_dbf) {
+        callbakMsg.push('[訊息] - - - - - -> 讀取完成')
+        dbfBuffer = e_dbf.target.result;
+        resolve(dbfBuffer)
+      }
+      reader_dbf.readAsArrayBuffer(dbfFile);
+      callbakMsg.push('[訊息] >>>開始讀取' + dbfFile.name);
+    } catch(e){
+      callbakMsg.push('[訊息] ' + dbfFile.name + '讀取錯誤:' + e );
     }
-    reader_dbf.readAsArrayBuffer(dbfFile);
   })
 }
 
-function readPRJ(prjFile){
+function readPRJ(prjFile, callbakMsg){
   // 載入prj
   let reader_prj = new FileReader();
   let prjBuffer;
   return new Promise((resolve,reject)=>{
-    reader_prj.onload = function(e_prj) {
-      prjBuffer = e_prj.target.result;
-      resolve(prjBuffer)
+    try {
+      reader_prj.onload = function(e_prj) {
+        callbakMsg.push('[訊息] - - - - - -> 讀取完成')
+        prjBuffer = e_prj.target.result;
+        resolve(prjBuffer)
+      }
+      reader_prj.readAsText(prjFile);
+      callbakMsg.push('[訊息] >>>開始讀取' + prjFile.name);
+    } catch(e){
+      callbakMsg.push('[訊息] ' + prjFile.name + '讀取錯誤:' + e );
     }
-    reader_prj.readAsText(prjFile);
   })
 }
 

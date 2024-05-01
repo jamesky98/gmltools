@@ -184,6 +184,7 @@ function doExport(){
   
   for (let i=0;i<x.length;i++){
     let schemaIndex=shpfiles[x[i]].schema;
+    if(schemaIndex<0) { continue; }
     let schema = schemalist[schemaIndex];
     saveGML(shpfiles[x[i]].rowdata, schema, shpfiles[x[i]].shpfile)
       .then(res=>{

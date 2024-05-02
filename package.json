@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/shapefile": "^0.6.4",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "jszip": "^3.10.1",
     "mdb-vue-ui-kit": "git+https://oauth2:xfmb3NQ7xmmjona5VzHA@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential",
     "path-browserify": "^1.0.1",

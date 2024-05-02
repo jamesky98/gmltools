@@ -15,6 +15,10 @@ export default defineConfig(({ command, mode }) => {
     },
     define: { "process.env": {} },
     server: {
+      // https: {
+      //   key: './gmltools-privateKey.key',
+      //   cert: './gmltools.crt'
+      // },
       host: "0.0.0.0",
       // host: "host.docker.internal",
     },

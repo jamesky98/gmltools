@@ -10,14 +10,14 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       vue(),
-      basicSsl({
-        /** name of certification */
-        name: 'test',
-        /** custom trust domains */
-        domains: ['jamesky98.zapto.org'],
-        /** custom certification directory */
-        certDir: './cert'
-      })
+      // basicSsl({
+      //   /** name of certification */
+      //   name: 'test',
+      //   /** custom trust domains */
+      //   domains: ['jamesky98.zapto.org'],
+      //   /** custom certification directory */
+      //   certDir: './cert'
+      // })
     ],
     resolve: {
       alias: {
@@ -27,8 +27,8 @@ export default defineConfig(({ command, mode }) => {
     define: { "process.env": {} },
     server: {
       // https: {
-      //   key: './gmltools-privateKey.key',
-      //   cert: './gmltools.crt'
+      //   key: './cert/cloudflare.key',
+      //   cert: './cert/cloudflare.cert'
       // },
       host: "0.0.0.0",
       // host: "host.docker.internal",

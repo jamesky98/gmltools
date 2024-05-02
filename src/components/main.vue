@@ -85,9 +85,10 @@ import JSZip from "jszip"
     { label: "坐標系統", field: "csr" },
     { label: "類型" },
     { label: "匯出", field: "export" },
+    { label: "錯誤訊息", field: "errmsg" },
   ];
-  const tableRows = ref([]);
-  const dataRows = ref([]);
+  const tableRows = ref([]); // 作為資料表內容使用
+  const dataRows = ref([]); // 實際原始資料使用
   const shpTableData = computed(()=>{
     return {
       columns: tableCols,
@@ -164,8 +165,8 @@ async function loadSHPfiles(event){
   for (let i=0; i<shpCount; i++ ){
     await loadSHPfile(inputList[shpList[i]], msgArray.value)
     .then(res=>{
-      msgArray.value.push('[訊息] ====== 共計讀取 ' + shpCount +' 個 shp files ======');
       // 填入列表資料
+      msgArray.value.push('-------------------------------------');
       return [
         tempDatas.push({
           selected: false,
@@ -177,6 +178,8 @@ async function loadSHPfiles(event){
           schema: "",
           export: null,
           exblob: null,
+          errmsg: null,
+          errblob: null,
         }),
         tempRows.push({
           id: i,
@@ -184,6 +187,7 @@ async function loadSHPfiles(event){
           count: res.geoData.length,
           csr: res.crs,
           export: null,
+          errmsg: null,
         })
       ]
       // saveGML(res, schemalist[selectSchema.value])
@@ -192,6 +196,7 @@ async function loadSHPfiles(event){
   tableRows.value = tempRows;
   dataRows.value = tempDatas;
   isloadevent=true
+  msgArray.value.push('[訊息] ====== 共計讀取 ' + shpCount +' 個 shp files ======');
   // console.log('tableRows',tableRows.value)
 }
 
@@ -215,55 +220,117 @@ function renderDT(e){
   
 }
 
-// 匯出GML
-function doExport(){
+// 產生GML
+async function doExport(){
   let x=exportFilesList;
   let shpfiles = dataRows.value;
+  // console.log('shpfiles',shpfiles)
   let shpTable = tableRows.value;
-  
+  // console.log('shpTable',shpTable)
+
   for (let i=0;i<x.length;i++){
     let schemaIndex=shpfiles[x[i]].schema;
     let shpName = shpfiles[x[i]].shpfileName;
+    let convertErr = [];
+
     if(schemaIndex<0) { 
-      msgArray.value.push('[警告] #' + x[i] + ' [' + shpName + '] 未設定[類型](Schema)')
+      let err = '[警告] #' + x[i] + ' [' + shpName + '] 未設定[類型](Schema)'
+      msgArray.value.push(err);
+      convertErr.push(err)
       continue; 
     }
     let schema = schemalist[schemaIndex];
-    saveGML(shpfiles[x[i]].rowdata, schema, shpName, msgArray.value)
+    // console.log(shpfiles[x[i]].rowdata)
+    await saveGML({
+      data: shpfiles[x[i]].rowdata, 
+      schema: schema, 
+      filename: shpName, 
+      csr: shpfiles[x[i]].csr
+    },{mainMsg: msgArray.value, subMsg: convertErr})
       .then(res=>{
         // console.log(res.outerHTML)
         res.link.innerHTML=shpName;
         shpfiles[x[i]].export = res.link.outerHTML;
         shpTable[x[i]].export = res.link.outerHTML;
         shpfiles[x[i]].exblob = res.blob;
+
+
+        // 處理錯誤訊息
+        // console.log(convertErr)
+        if(convertErr.length>0){
+          let errTxt = convertErr.join('\n');
+          // console.log(errTxt)
+          let errBlob = new Blob([errTxt], {
+            type: 'text/strings;charset=utf-8'
+          });
+          // console.log(errBlob)
+          let errHref = URL.createObjectURL(errBlob);
+          // console.log('errHref',errHref)
+          let errLink = document.createElement("a");
+          // document.body.appendChild(link);
+          errLink.href = errHref;
+          errLink.target = '_blank';
+          // errLink.download = shpName + '_err.txt';
+          errLink.innerHTML= shpName + '.err';
+          // console.log('errLink',errLink)
+
+          shpfiles[x[i]].errmsg = errLink.outerHTML;
+          shpfiles[x[i]].errblob = errBlob;
+          shpTable[x[i]].errmsg = errLink.outerHTML;
+          // console.log('shpTable',shpTable)
+
+        }
+        
+
+        msgArray.value.push('[訊息] '+shpName+' 轉檔完畢')
+      }).catch((e)=>{
+        console.log(e)
       })
   }
   // console.log(shpfiles);
 }
 
-function saveGML(data, schema, shpfilename, callbakMsg){
+// 建立GML下載檔案
+function saveGML(shpfile, callbakMsg){
+  let data = shpfile.data;
+  let schema = shpfile.schema;
+  let shpfilename = shpfile.filename;
+  let csr = shpfile.csr;
   return new Promise((resole,reject)=>{
-    let dataStr = dataToGML(data, schema);
-    //藉型別陣列建構的 blob 來建立 URL
-    let fileName = shpfilename + ".gml";
-    let blob = new Blob([dataStr], {
-      type: "application/octet-stream",
-    });
-    let href = URL.createObjectURL(blob);
-    // 從 Blob 取出資料
-    let link = document.createElement("a");
-    // document.body.appendChild(link);
-    link.href = href;
-    link.download = fileName;
-    resole({
-      link: link,
-      blob: blob,
-    });
-    // link.click();
-    // document.body.removeChild(link);
+    // console.log(data)
+    let dataStr = dataToGML(
+      {
+        rowdata: data,
+        filename: shpfilename,
+        csr: csr,
+      }, schema, callbakMsg)
+    .then(res=>{
+      if(!dataStr){
+        callbakMsg.mainMsg.push('[警告] '+shpfilename+' 無法轉出GML')
+        callbakMsg.subMsg.push('[警告] '+shpfilename+' 無法轉出GML')
+        reject('not match')
+      }
+
+      //藉型別陣列建構的 blob 來建立 URL
+      let fileName = shpfilename + ".gml";
+      let blob = new Blob([dataStr], {
+        type: "application/octet-stream",
+      });
+      let href = URL.createObjectURL(blob);
+      // 從 Blob 取出資料
+      let link = document.createElement("a");
+      // document.body.appendChild(link);
+      link.href = href;
+      link.download = fileName;
+      resole({
+        link: link,
+        blob: blob,
+      });
+    })
   })
 }
 
+// 全部下載
 async function downLoadAll(){
   let shpfiles = dataRows.value;
 
@@ -271,6 +338,10 @@ async function downLoadAll(){
   for (let i=0; i<shpfiles.length; i++){
     if(shpfiles[i].exblob){
       zip.file(shpfiles[i].shpfileName+'.gml', shpfiles[i].exblob)
+    }
+
+    if(shpfiles[i].errblob){
+      zip.file(shpfiles[i].shpfileName+'.err', shpfiles[i].errblob)
     }
   }
 

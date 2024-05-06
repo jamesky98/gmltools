@@ -46,11 +46,15 @@ function dataToGML(shpdata, schema, callbakMsg){
 
       // 判斷幾何的維度
       let dimension=0;
-      if(refData[i].geometry.coordinates.length % 2){
+      if(refData[i].geometry.coordinates.length % 2 === 0){
         dimension=2;
-      }else if(refData[i].geometry.coordinates.length % 3 ){
+      }else if(refData[i].geometry.coordinates.length % 3 ===0 ){
         dimension=3;
       }
+      console.log('lenght: ',refData[i].geometry.coordinates.length)
+      console.log('dimension: ',dimension)
+
+
 
       dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="'+ dimension +'">\n';
       dataStr = dataStr + '                    <gml:coordinates>';
@@ -159,7 +163,7 @@ function dataToGML(shpdata, schema, callbakMsg){
     }
     // 填入檔尾
     dataStr = dataStr + '</UTL>\n';
-
+    console.log('dataStr',dataStr)
     resolve(dataStr);
   })
 }

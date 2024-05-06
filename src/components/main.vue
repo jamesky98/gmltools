@@ -305,15 +305,17 @@ function saveGML(shpfile, callbakMsg){
         csr: csr,
       }, schema, callbakMsg)
     .then(res=>{
-      if(!dataStr){
+      if(!res){
         callbakMsg.mainMsg.push('[警告] '+shpfilename+' 無法轉出GML')
         callbakMsg.subMsg.push('[警告] '+shpfilename+' 無法轉出GML')
         reject('not match')
       }
 
+      console.log(res)
+
       //藉型別陣列建構的 blob 來建立 URL
       let fileName = shpfilename + ".gml";
-      let blob = new Blob([dataStr], {
+      let blob = new Blob([res], {
         type: "application/octet-stream",
       });
       let href = URL.createObjectURL(blob);

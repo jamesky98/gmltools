@@ -311,7 +311,7 @@ function saveGML(shpfile, callbakMsg){
         reject('not match')
       }
 
-      console.log(res)
+      // console.log(res)
 
       //藉型別陣列建構的 blob 來建立 URL
       let fileName = shpfilename + ".gml";

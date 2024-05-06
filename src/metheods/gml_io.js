@@ -51,8 +51,8 @@ function dataToGML(shpdata, schema, callbakMsg){
       }else if(refData[i].geometry.coordinates.length % 3 ===0 ){
         dimension=3;
       }
-      console.log('lenght: ',refData[i].geometry.coordinates.length)
-      console.log('dimension: ',dimension)
+      // console.log('lenght: ',refData[i].geometry.coordinates.length)
+      // console.log('dimension: ',dimension)
 
 
 
@@ -163,7 +163,7 @@ function dataToGML(shpdata, schema, callbakMsg){
     }
     // 填入檔尾
     dataStr = dataStr + '</UTL>\n';
-    console.log('dataStr',dataStr)
+    // console.log('dataStr',dataStr)
     resolve(dataStr);
   })
 }

@@ -82,18 +82,22 @@ function dataToGML(shpdata, schema, callbakMsg){
       // console.log('attribute',attribute);
       // console.log('schema.colume',schema.colume);
       for(let j=0;j<schema.colume.length;j++){
+        let xlsCheckName = schema.colume[j][0].length>5?schema.colume[j][0].slice(0,5):schema.colume[j][0];
+        let schemaFieldName = schema.colume[j][0]
+
+        // console.log('xlsCheckName',xlsCheckName,'schemaFieldName',schemaFieldName)
         if(schema.colume[j][2]==='date'){
           // 型態為日期
-          if(attribute[schema.colume[j][0]]){
-            let dateContent = attribute[schema.colume[j][0]];
+          if(attribute[xlsCheckName]){
+            let dateContent = attribute[xlsCheckName];
             // 有資料
             // 核對資料型態
             if(!(dateContent instanceof Date)){
               dateContent = new Date(dateContent);
               if(isNaN(dateContent)){
-                callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以[1901-01-01]代替')
-                callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以[1901-01-01]代替')
-                dataStr = dataStr + '            <' + schema.colume[j][0] + '>1901-01-01</'+schema.colume[j][0] + '>\n'    
+                callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以[1901-01-01]代替')
+                callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以[1901-01-01]代替')
+                dataStr = dataStr + '            <' + schemaFieldName + '>1901-01-01</'+schemaFieldName + '>\n'    
                 continue;
               }
             }
@@ -103,59 +107,61 @@ function dataToGML(shpdata, schema, callbakMsg){
               String(dateContent.getMonth()+1).padStart(2, "0") + '-' + 
               String(dateContent.getDate()).padStart(2, "0");
 
-            dataStr = dataStr + '            <' + schema.colume[j][0] + '>\n';
+            dataStr = dataStr + '            <' + schemaFieldName + '>\n';
             dataStr = dataStr + '                <gml:TimeInstant>\n';
             dataStr = dataStr + '                    <gml:timePosition>' + formatDate + '</gml:timePosition>\n';
             dataStr = dataStr + '                </gml:TimeInstant>\n';
-            dataStr = dataStr + '            </' + schema.colume[j][0] + '>\n';
+            dataStr = dataStr + '            </' + schemaFieldName + '>\n';
 
           }else if(schema.colume[j][1]==='O'){
             // 選填項目則空欄
-            dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
+            dataStr = dataStr +'            <' + schemaFieldName + '/>\n'
           }else{
             // 必填項目
             // 拋出錯誤:應為必填欄位
             // 下方為暫時處理措施
-            callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位應為必填資料，查無內容以[1901-01-01]代替')
-            callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位應為必填資料，查無內容以[1901-01-01]代替')
-            dataStr = dataStr + '            <' + schema.colume[j][0] + '>1901-01-01</'+schema.colume[j][0] + '>\n'
+            callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位應為必填資料，查無內容以[1901-01-01]代替')
+            callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位應為必填資料，查無內容以[1901-01-01]代替')
+            dataStr = dataStr + '            <' + schemaFieldName + '>1901-01-01</'+schemaFieldName + '>\n'
           }
         }else if(schema.colume[j][1]==='O'){
           // 選填項目
-          if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
+          if(attribute[xlsCheckName] || attribute[xlsCheckName]===0){
             // 有內容
             // 核對資料型態
-            if(checkType(schema.colume[j][2],attribute[schema.colume[j][0]])){
-              dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0] +'>\n'
+            if(checkType(schema.colume[j][2],attribute[xlsCheckName])){
+              dataStr = dataStr + '            <' + schemaFieldName + '>' + attribute[xlsCheckName] +'</'+schemaFieldName +'>\n'
             }else{
-              callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以0代替');
-              callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以0代替');
-              dataStr = dataStr + '            <' + schema.colume[j][0] + '>0</'+schema.colume[j][0] +'>\n'
+              callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以0代替');
+              callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以0代替');
+              dataStr = dataStr + '            <' + schemaFieldName + '>0</'+schemaFieldName +'>\n'
             }
             
           }else{
             // 無內容
-            dataStr = dataStr +'            <' + schema.colume[j][0] + '/>\n'
+            dataStr = dataStr +'            <' + schemaFieldName + '/>\n'
           }
         }else if(schema.colume[j][1]==='M'){
+          
           // 必填項目
-          if(attribute[schema.colume[j][0]] || attribute[schema.colume[j][0]]===0){
+          if(attribute[xlsCheckName] || attribute[xlsCheckName]===0){
             // 有內容
             // 核對資料型態
-            if(checkType(schema.colume[j][2],attribute[schema.colume[j][0]])){
-              dataStr = dataStr + '            <' + schema.colume[j][0] + '>' + attribute[schema.colume[j][0]] +'</'+schema.colume[j][0] +'>\n'
+            if(checkType(schema.colume[j][2],attribute[xlsCheckName])){
+              dataStr = dataStr + '            <' + schemaFieldName + '>' + attribute[xlsCheckName] +'</'+schemaFieldName +'>\n'
             }else{
-              callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以0代替');
-              callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位型態錯誤，以0代替');
-              dataStr = dataStr + '            <' + schema.colume[j][0] + '>0</'+schema.colume[j][0] +'>\n'
+              console.log(attribute[xlsCheckName])
+              callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以0代替');
+              callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位型態錯誤，以0代替');
+              dataStr = dataStr + '            <' + schemaFieldName + '>0</'+schemaFieldName +'>\n'
             }
           }else{
             // 無內容
             // 拋出錯誤:應為必填欄位
             // 下方為暫時處理措施
-            callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位應為必填資料，查無內容以0代替')
-            callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schema.colume[j][0] + ']欄位應為必填資料，查無內容以0代替')
-            dataStr = dataStr + '            <' + schema.colume[j][0] + '>0</'+schema.colume[j][0]+'>\n'
+            callbakMsg.mainMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位應為必填資料，查無內容以0代替')
+            callbakMsg.subMsg.push('[錯誤] '+ filename +' 中第'+ i +'筆資料[' + schemaFieldName + ']欄位應為必填資料，查無內容以0代替')
+            dataStr = dataStr + '            <' + schemaFieldName + '>0</'+schemaFieldName+'>\n'
           }
         }
       }

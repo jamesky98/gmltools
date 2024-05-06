@@ -119,7 +119,9 @@ async function loadSHPfiles(event){
   let filelist = event.target.files;
   // 計算所選檔案數量
   let file_count = filelist.length;
+  // console.log('filelist',filelist)
   
+  inputList={};
   let shpList=[];
   let shpCount=0;
   // 逐筆檢查檔案
@@ -198,6 +200,7 @@ async function loadSHPfiles(event){
   isloadevent=true
   msgArray.value.push('[訊息] ====== 共計讀取 ' + shpCount +' 個 shp files ======');
   // console.log('tableRows',tableRows.value)
+
 }
 
 function renderDT(e){

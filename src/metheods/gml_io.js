@@ -7,6 +7,7 @@ function dataToGML(shpdata, schema, callbakMsg){
     // console.log('filename',filename);
     let csr = shpdata.csr;
     // console.log('csr',csr);
+    // console.log('schema',schema)
 
     // data沒有資料
     if(!(rowdata && rowdata.length>0)){
@@ -42,29 +43,31 @@ function dataToGML(shpdata, schema, callbakMsg){
       // 紀錄標頭
       dataStr = dataStr + '    <gml:featureMember>\n';
       dataStr = dataStr + '        <' + schema.tag + '>\n';
-      dataStr = dataStr + '            <geometry>\n';
-
-      // 判斷幾何的維度
-      let dimension=0;
-      if(refData[i].geometry.coordinates.length % 2 === 0){
-        dimension=2;
-      }else if(refData[i].geometry.coordinates.length % 3 ===0 ){
-        dimension=3;
-      }
-      // console.log('lenght: ',refData[i].geometry.coordinates.length)
-      // console.log('dimension: ',dimension)
-
-
-
-      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="'+ dimension +'">\n';
-      dataStr = dataStr + '                    <gml:coordinates>';
+      
       // 幾何資訊
       let pointlist=[];
+      let dimension=0;
       if(refData[i].geometry.type === 'Point'){
         pointlist.push(refData[i].geometry.coordinates)
+        if(refData[i].geometry.coordinates.length % 2 === 0){
+          dimension=2;
+        }else if(refData[i].geometry.coordinates.length % 3 ===0 ){
+          dimension=3;
+        }
       }else{
         pointlist = refData[i].geometry.coordinates;
+        // 判斷幾何的維度
+        
+        if(refData[i].geometry.coordinates[0].length % 2 === 0){
+          dimension=2;
+        }else if(refData[i].geometry.coordinates[0].length % 3 ===0 ){
+          dimension=3;
+        }
       }
+      
+      dataStr = dataStr + '            <geometry>\n';
+      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="'+ dimension +'">\n';
+      dataStr = dataStr + '                    <gml:coordinates>';
       
       for (let j=0; j < pointlist.length; j++){
         if(j!==0){dataStr = dataStr + ' ' }

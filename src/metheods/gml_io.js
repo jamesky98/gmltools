@@ -66,12 +66,18 @@ function dataToGML(shpdata, schema, callbakMsg){
       }
       
       dataStr = dataStr + '            <geometry>\n';
-      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="'+ dimension +'">\n';
+      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="3">\n';
       dataStr = dataStr + '                    <gml:coordinates>';
       
       for (let j=0; j < pointlist.length; j++){
         if(j!==0){dataStr = dataStr + ' ' }
-        dataStr = dataStr + pointlist[j][0] + ' ' + pointlist[j][1]
+
+        if(dimension===2){
+          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3) + ' ' + 0.0
+        }else{
+          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3)
+        }
+        
       }
       dataStr = dataStr + '</gml:coordinates>\n';
       dataStr = dataStr + '                </gml:' + schema.type + '>\n';
@@ -194,6 +200,10 @@ function checkType(schemaType, testDate){
   }
 }
 
+function roundNum(value, dig){
+  let m = Number((Math.abs(value) * (10**dig)).toPrecision(15));
+  return Math.round(m) / (10**dig) * Math.sign(value);
+}
 
 
 export { 

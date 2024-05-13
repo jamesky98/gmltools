@@ -67,7 +67,12 @@ function dataToGML(shpdata, schema, callbakMsg){
       
       dataStr = dataStr + '            <geometry>\n';
       dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="3">\n';
-      dataStr = dataStr + '                    <gml:coordinates>';
+
+      if(refData[i].geometry.type === 'Point'){
+        dataStr = dataStr + '                    <gml:coordinates>';
+      }else{
+        dataStr = dataStr + '                    <gml:posList>';
+      }
       
       for (let j=0; j < pointlist.length; j++){
         if(j!==0){dataStr = dataStr + ' ' }
@@ -79,7 +84,12 @@ function dataToGML(shpdata, schema, callbakMsg){
         }
         
       }
-      dataStr = dataStr + '</gml:coordinates>\n';
+      if(refData[i].geometry.type === 'Point'){
+        dataStr = dataStr + '</gml:coordinates>\n';
+      }else{
+        dataStr = dataStr + '</gml:posList>\n';
+      }
+
       dataStr = dataStr + '                </gml:' + schema.type + '>\n';
       dataStr = dataStr + '            </geometry>\n';
       // console.log(dataStr)

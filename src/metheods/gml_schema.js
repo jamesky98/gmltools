@@ -1,6 +1,6 @@
 // 點
 const utl_point={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_點',
   type: 'Point',
   colume: [
@@ -14,7 +14,7 @@ const utl_point={
 
 // 人手孔
 const utl_handHole={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_人手孔',
   type: 'Point',
   colume: [
@@ -41,7 +41,7 @@ const utl_handHole={
 
 // 開關閥
 const utl_switch={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_開關閥',
   type: 'Point',
   colume: [
@@ -64,7 +64,7 @@ const utl_switch={
 }
 // 消防栓
 const utl_fireHydrat={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_消防栓',
   type: 'Point',
   colume: [
@@ -86,7 +86,7 @@ const utl_fireHydrat={
 
 // 電桿
 const utl_ePole={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_電桿',
   type: 'Point',
   colume: [
@@ -106,7 +106,7 @@ const utl_ePole={
 
 // 號誌
 const utl_signal={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_號誌',
   type: 'Point',
   colume: [
@@ -127,7 +127,7 @@ const utl_signal={
 
 // 其他設施
 const utl_other={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_其他設施',
   type: 'Point',
   colume: [
@@ -149,7 +149,7 @@ const utl_other={
 }
 // 維護口
 const utl_mainten={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_維護口',
   type: 'Point',
   colume: [
@@ -167,7 +167,7 @@ const utl_mainten={
 }
 // 站場
 const utl_stations={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_站場',
   type: 'Point',
   colume: [
@@ -184,7 +184,7 @@ const utl_stations={
 }
 // 線
 const utl_line={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_線',
   type: 'LineString',
   colume: [
@@ -199,7 +199,7 @@ const utl_line={
 }
 // 管線
 const utl_pipeLine={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管線',
   type: 'LineString',
   colume: [
@@ -229,7 +229,7 @@ const utl_pipeLine={
 
 // 管線_自來水
 const utl_tapWater={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管線_自來水',
   type: 'LineString',
   colume: [
@@ -259,7 +259,7 @@ const utl_tapWater={
 
 // 管線_供氣
 const utl_gas={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管線_供氣',
   type: 'LineString',
   colume: [
@@ -289,7 +289,7 @@ const utl_gas={
 }
 // 管線_輸油
 const utl_oil={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管線_輸油',
   type: 'LineString',
   colume: [
@@ -319,7 +319,7 @@ const utl_oil={
 }
 // 管線_工業
 const utl_industry={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管線_工業',
   type: 'LineString',
   colume: [
@@ -349,7 +349,7 @@ const utl_industry={
 }
 // 管中管
 const utl_withinTube={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管中管',
   type: 'LineString',
   colume: [
@@ -364,7 +364,7 @@ const utl_withinTube={
 }
 // 管道
 const utl_tubing={
-  header: "<UTL xmlns:gml='http://www.opengis.net/gml' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ngis_primitive='http://standards.moi.gov.tw/schema/ngis_primitive/' xmlns:gco='http://www.isotc211.org/2005/gco' xmlns:gmd='http://www.isotc211.org/2005/gmd' xmlns='https://standards.moi.gov.tw/schema/utilityex' xsi:schemaLocation='https://standards.moi.gov.tw/schema/utilityex utilityex.xsd'>\n",
+  header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
   tag: 'UTL_管道',
   type: 'LineString',
   colume: [

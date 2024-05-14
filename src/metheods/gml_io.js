@@ -66,7 +66,7 @@ function dataToGML(shpdata, schema, callbakMsg){
       }
       
       dataStr = dataStr + '            <geometry>\n';
-      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="3">\n';
+      dataStr = dataStr + '                <gml:' + schema.type + ' srsName="'+csr+'" srsDimension="'+ dimension +'">\n';
 
       if(refData[i].geometry.type === 'Point'){
         dataStr = dataStr + '                    <gml:coordinates>';
@@ -78,9 +78,9 @@ function dataToGML(shpdata, schema, callbakMsg){
         if(j!==0){dataStr = dataStr + ' ' }
 
         if(dimension===2){
-          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3) + ' ' + 0.0
+          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3) // + ' ' + 0.0
         }else{
-          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3)
+          dataStr = dataStr + roundNum(pointlist[j][0],3) + ' ' + roundNum(pointlist[j][1],3) + ' ' + roundNum(pointlist[j][2],3)
         }
         
       }

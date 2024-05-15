@@ -81,6 +81,7 @@ import JSZip from "jszip"
   const tableCols = [
     { label: "#", field: "id" },
     { label: "檔案名稱", field: "shpfileName" },
+    { label: "維度", field: "dims" },
     { label: "圖徵數量", field: "count" },
     { label: "坐標系統", field: "csr" },
     { label: "類型" },
@@ -188,6 +189,7 @@ async function loadSHPfiles(event){
           shpfileName: shpList[i],
           count: res.geoData.length,
           csr: res.crs,
+          dims: res.dims,
           export: null,
           errmsg: null,
         })
@@ -211,7 +213,7 @@ function renderDT(e){
     if(e.rows.length>0){
       for (let i=0;i<e.rows.length;i++){
         let sl = document.getElementById(`schemaselctor${i}`);
-        let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(6)`);
+        let togetDOM = document.querySelector(`tr[data-mdb-index="${i}"]>td:nth-child(7)`);
         // console.log(togetDOM)
         togetDOM.innerHTML="";
         togetDOM.append(sl)

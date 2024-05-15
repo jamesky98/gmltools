@@ -35,7 +35,7 @@ function loadSHPfile(inputFile, callbakMsg){
     }else{
       callbakMsg.push('[訊息] 無prj檔，預設使用 EPSG:3826 坐標系統')
     }
-
+    let dims = 2;
     let geoData = openSHP(shpBuffer, dbfBuffer, {encoding: 'Big5'})
       .then(source => source.read()
         .then(function log(result) {
@@ -43,9 +43,17 @@ function loadSHPfile(inputFile, callbakMsg){
           if (result.done) { 
             // console.log('shpData',shpFileData);
             // return shpFileData;
+            let geodata = shpFileData[0].geometry;
+            if(geodata.type === 'Point'){
+              if(geodata.coordinates.length>2){dims=3}
+            }else{
+              if(geodata.coordinates[0].length>2){dims=3}
+            }
+            
             return resolve({
               geoData:shpFileData,
               crs:crs,
+              dims: dims,
             })
           }
           shpFileData.push(result.value);

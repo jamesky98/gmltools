@@ -1,5 +1,5 @@
-import { resolve } from 'path-browserify';
-import { open as openSHP } from 'shapefile'
+// import { resolve } from 'path-browserify';
+import { open as openSHP } from '../metheods/shapefile'
 import { crslist } from "../metheods/csr"
 
 // 函式
@@ -39,6 +39,7 @@ function loadSHPfile(inputFile, callbakMsg){
     let geoData = openSHP(shpBuffer, dbfBuffer, {encoding: 'Big5'})
       .then(source => source.read()
         .then(function log(result) {
+          // console.log(result)
           if (result.done) { 
             // console.log('shpData',shpFileData);
             // return shpFileData;

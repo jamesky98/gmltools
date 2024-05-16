@@ -81,7 +81,7 @@ import JSZip from "jszip"
   const tableCols = [
     { label: "#", field: "id" },
     { label: "檔案名稱", field: "shpfileName" },
-    { label: "維度", field: "dims" },
+    { label: "維度", field: "dimscol" },
     { label: "圖徵數量", field: "count" },
     { label: "坐標系統", field: "csr" },
     { label: "類型" },
@@ -179,6 +179,8 @@ async function loadSHPfiles(event){
           rowdata: res.geoData,
           csr: res.crs,
           schema: "",
+          dims: res.dims,
+          fix3d: false,
           export: null,
           exblob: null,
           errmsg: null,
@@ -190,6 +192,7 @@ async function loadSHPfiles(event){
           count: res.geoData.length,
           csr: res.crs,
           dims: res.dims,
+          fix3d: false,
           export: null,
           errmsg: null,
         })
@@ -197,7 +200,13 @@ async function loadSHPfiles(event){
       // saveGML(res, schemalist[selectSchema.value])
     })
   }
-  tableRows.value = tempRows;
+  tableRows.value = tempRows.map((row, index)=>{
+    let txt = (row.dims===2)?`<span class="dims2 me-2">二維</span><input type="checkbox" class="dims2ckbox" data-mdb-idx="${index}">強制三維</input>`:'<p class="dims3">三維</p>'
+    return {
+      ...row,
+      dimscol: txt
+    }
+  })
   dataRows.value = tempDatas;
   isloadevent=true
   msgArray.value.push('[訊息] ====== 共計讀取 ' + shpCount +' 個 shp files ======');
@@ -205,11 +214,28 @@ async function loadSHPfiles(event){
 
 }
 
+function setActions(){
+  // console.log('setActions');
+  // console.log(document.getElementsByClassName("dims2ckbox"));
+  Array.from(document.getElementsByClassName("dims2ckbox")).forEach(btn => {
+    if (btn.getAttribute("change-listener") !== "true") {
+      btn.addEventListener("change", () => {
+        // tableRows.value[btn.attributes["data-mdb-idx"].value].fix3d = btn.checked;
+        dataRows.value[btn.attributes["data-mdb-idx"].value].fix3d = btn.checked;
+        // console.log(tableRows.value)
+      });
+      btn.setAttribute("change-listener", "true");
+    }
+  });
+}
+
 function renderDT(e){
   // console.log('render')
   // console.log(isloadevent)
   // console.log(e)
+  
   if(isloadevent){
+    setActions();
     if(e.rows.length>0){
       for (let i=0;i<e.rows.length;i++){
         let sl = document.getElementById(`schemaselctor${i}`);
@@ -250,7 +276,8 @@ async function doExport(){
       data: shpfiles[x[i]].rowdata, 
       schema: schema, 
       filename: shpName, 
-      csr: shpfiles[x[i]].csr
+      csr: shpfiles[x[i]].csr,
+      fix3d: shpfiles[x[i]].fix3d
     },{mainMsg: msgArray.value, subMsg: convertErr})
       .then(res=>{
         // console.log(res.outerHTML)
@@ -297,18 +324,17 @@ async function doExport(){
 
 // 建立GML下載檔案
 function saveGML(shpfile, callbakMsg){
-  let data = shpfile.data;
-  let schema = shpfile.schema;
   let shpfilename = shpfile.filename;
-  let csr = shpfile.csr;
   return new Promise((resole,reject)=>{
     // console.log(data)
+    // console.log(shpfile)
     let dataStr = dataToGML(
       {
-        rowdata: data,
+        rowdata: shpfile.data,
         filename: shpfilename,
-        csr: csr,
-      }, schema, callbakMsg)
+        csr: shpfile.csr,
+        fix3d: shpfile.fix3d,
+      }, shpfile.schema, callbakMsg)
     .then(res=>{
       if(!res){
         callbakMsg.mainMsg.push('[警告] '+shpfilename+' 無法轉出GML')
@@ -384,6 +410,9 @@ onMounted(()=>{
       <MDBCol class="h-100 d-flex flex-column">
         <!-- 操作列 -->
         <MDBRow id="btnbox" class="pb-3 border-bottom">
+          <MDBCol col="12" class="border border-5 rounded-6 p-1">
+            <div class="txt-header" data-stroke="公共設施管線資料GML轉檔工具">公共設施管線資料GML轉檔工具</div>
+          </MDBCol>
           <MDBCol col="8">
             <MDBFile 
               multiple
@@ -463,4 +492,31 @@ onMounted(()=>{
 .btn {
   --mdb-btn-padding-x: 1rem !important;
 }
+
+.dims3 {
+  color: green;
+}
+
+.dims2 {
+  color: red;
+}
+
+.txt-header {
+  position: relative;
+  color: #fff;
+  font-size: 2rem;
+  z-index: 10; 
+  background: #A7CFA2; 
+  letter-spacing: 10px;
+}
+
+.txt-header:before {
+  position: absolute; 
+  z-index: -1;
+  -webkit-text-stroke: 5px #5b947f; 
+  content: attr(data-stroke);
+}
+
+
+
 </style>

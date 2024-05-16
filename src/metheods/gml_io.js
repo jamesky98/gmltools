@@ -7,6 +7,7 @@ function dataToGML(shpdata, schema, callbakMsg){
     let filename = shpdata.filename;
     // console.log('filename',filename);
     let csr = shpdata.csr;
+    let fix3d = shpdata.fix3d;
     // console.log('csr',csr);
     // console.log('schema',schema)
 
@@ -49,14 +50,11 @@ function dataToGML(shpdata, schema, callbakMsg){
       let pointlist=[];
       let dimension=0;
 
-      
-
       if(refData[i].geometry.type === 'Point'){
         pointlist.push(refData[i].geometry.coordinates)
-
         // console.log('pointlist',pointlist)
 
-        if(refData[i].geometry.coordinates.length === 2){
+        if(refData[i].geometry.coordinates.length === 2 && !fix3d){
           dimension=2;
         }else {
           dimension=3;
@@ -64,10 +62,9 @@ function dataToGML(shpdata, schema, callbakMsg){
       }else{
         pointlist = refData[i].geometry.coordinates;
         // 判斷幾何的維度
-        
         // console.log('pointlist',pointlist)
 
-        if(refData[i].geometry.coordinates[0].length === 2){
+        if(refData[i].geometry.coordinates[0].length === 2 && !fix3d){
           dimension=2;
         }else{
           dimension=3;
@@ -89,7 +86,11 @@ function dataToGML(shpdata, schema, callbakMsg){
         if(dimension===2){
           dataStr = dataStr + roundNum(pointlist[j][0],digpos) + ' ' + roundNum(pointlist[j][1],digpos) // + ' ' + 0.0
         }else{
-          dataStr = dataStr + roundNum(pointlist[j][0],digpos) + ' ' + roundNum(pointlist[j][1],digpos) + ' ' + roundNum(pointlist[j][2],digpos)
+          if(fix3d){
+            dataStr = dataStr + roundNum(pointlist[j][0],digpos) + ' ' + roundNum(pointlist[j][1],digpos) + ' ' + 0.0
+          }else{
+            dataStr = dataStr + roundNum(pointlist[j][0],digpos) + ' ' + roundNum(pointlist[j][1],digpos) + ' ' + roundNum(pointlist[j][2],digpos)
+          }
         }
         
       }

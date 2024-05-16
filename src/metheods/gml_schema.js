@@ -230,7 +230,7 @@ const utl_pipeLine={
 // 管線_自來水
 const utl_tapWater={
   header: '<UTL xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xsi:schemaLocation="https://standards.moi.gov.tw/schema/utilityex utilityex.xsd" xmlns="https://standards.moi.gov.tw/schema/utilityex">\n',
-  tag: 'UTL_管線_自來水',
+  tag: 'UTL_管線_自來水',
   type: 'LineString',
   colume: [
     ['類別碼','M','string'],

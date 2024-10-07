@@ -5,6 +5,7 @@ import {
   MDBContainer, MDBRow, MDBCol,
   MDBBtn, MDBFile, MDBSelect, MDBDatatable,
   MDBScrollbar, MDBTextarea,
+  MDBModal, MDBModalHeader, MDBModalTitle, MDBModalBody, MDBModalFooter,
 } from "mdb-vue-ui-kit";
 import path from "path-browserify";
 import { schemalist } from "../metheods/gml_schema"
@@ -17,6 +18,13 @@ import JSZip from "jszip"
   let inputList = {};
   let exportFilesList = [];
   let isloadevent = false;
+  const selectCount = ref(0);
+  const gmlCount = ref(0);
+  const mergeSelCount = ref(0);
+  const gmlMergeModal = ref(false);
+  const gmlHeaderOptioins = ref([]);
+  const selectedHeader = ref();
+  const gmlMergeHeaderEx = ref('');
 
   const msgArray = ref(['====== 準備完畢 ======']);
   const pMessage = computed(()=>{
@@ -102,8 +110,12 @@ import JSZip from "jszip"
     // 把選擇結果填入tableRows中
     let shplist = dataRows.value
     shplist.forEach(x=>{x.selected=false});
+    selectCount.value = 0;
     for(let i=0;i<x.length;i++){
       shplist[x[i]].selected=true;
+      if (shplist[x[i]].selected){
+        selectCount.value = selectCount.value+1;
+      }
     }
     // console.log('dataRows',dataRows.value);
     // console.log('tableRows',tableRows.value);
@@ -114,6 +126,83 @@ import JSZip from "jszip"
     // 在本函數中建立一個所有被選取須轉換的[檔案名稱]陣列
     // 作為後續經由inputList物件按照[檔案名稱]轉換GML之用
   }
+
+  function openGmlMergeModal(){
+    // 寫入下拉式選單
+    let gmlMergeItems = gmlMergeItem.value.rows;
+    let total = gmlMergeItems.length;
+    gmlHeaderOptioins.value=[{text: '-未選取-', value: -1}];
+    for (let i=0; i<total; i++){
+      gmlHeaderOptioins.value.push({
+        text: gmlMergeItems[i].shpfileName,
+        value: i,
+      })
+    }
+    
+    // 顯示表單
+    gmlMergeModal.value=true;
+  }
+
+  const schemaTxt = computed(()=>{
+    gmlMregeData.value.map(row =>{
+      console.log('row',row.schema);
+      console.log('rowa',schemalist[row.schema].tag);
+      return schemalist[row.schema].tag
+    })
+  })
+
+  const gmlMregeData = ref([]); // 實際原始資料使用
+  const gmlMergeItem = computed(()=>{
+    return {
+      columns: [
+        { label: "#", field: "id" },
+        { label: "檔案名稱", field: "shpfileName" },
+        { label: "類型", field: "schemaName"},
+      ],
+      rows: gmlMregeData.value,
+    }
+  })
+
+  let gmlMergeSelectItems = null;
+  function selecMergeItem(x){
+    gmlMergeSelectItems = x;
+    mergeSelCount.value = x.length;
+  }
+
+  async function doMergeGML(){
+    let x = gmlMergeSelectItems;
+    let headerTxt = gmlMergeHeaderEx.value;
+    let mergeTxt = "";
+    mergeTxt = mergeTxt + headerTxt + '\n';
+
+    for(let i=0;i<x.length;i++){
+      let gmlText = await gmlMergeItem.value.rows[x[i]].exblob.text();
+      // console.log(gmlText);
+      const headerEndIndex = gmlText.indexOf('<gml:featureMember>');
+      const footerStartIndex = gmlText.lastIndexOf('</UTL>');
+      const body1 = gmlText.slice(headerEndIndex, footerStartIndex);
+      mergeTxt = mergeTxt + body1 + '\n'
+    }
+    mergeTxt = mergeTxt + '</UTL>\n'
+    console.log('mergeTxt',mergeTxt)
+  }
+
+  async function changeGmlHeader(){
+    // console.log(selectedHeader.value);
+    let index = selectedHeader.value;
+    gmlMergeHeaderEx.value = '';
+    if(index>-1){
+      let gmlText = await gmlMergeItem.value.rows[index].exblob.text();
+      // console.log(gmlText);
+      const headerEndIndex = gmlText.indexOf('<gml:featureMember>');
+      const header = gmlText.slice(0, headerEndIndex).trim();
+      gmlMergeHeaderEx.value = header;
+    }
+    
+  }
+
+
+
 // 函式
 async function loadSHPfiles(event){
   // 取得多筆實體檔案
@@ -258,6 +347,8 @@ async function doExport(){
   // console.log('shpfiles',shpfiles)
   let shpTable = tableRows.value;
   // console.log('shpTable',shpTable)
+  gmlCount.value=0;
+  gmlMregeData.value = [];
 
   for (let i=0;i<x.length;i++){
     let schemaIndex=shpfiles[x[i]].schema;
@@ -309,8 +400,14 @@ async function doExport(){
           shpfiles[x[i]].errmsg = errLink.outerHTML;
           shpfiles[x[i]].errblob = errBlob;
           shpTable[x[i]].errmsg = errLink.outerHTML;
-          // console.log('shpTable',shpTable)
-
+          // console.log('shpTable',shpTable) 
+        }else{
+          gmlCount.value = gmlCount.value + 1;
+          gmlMregeData.value.push({
+            ...dataRows.value[x[i]],
+            schemaName: schemalist[dataRows.value[x[i]].schema].tag});
+          // console.log('tableRows: ',tableRows.value)
+          // console.log('gmlMregeData: ',gmlMregeData.value)
         }
         
 
@@ -320,6 +417,7 @@ async function doExport(){
       })
   }
   // console.log(shpfiles);
+  selectCount.value = 0;
 }
 
 // 建立GML下載檔案
@@ -346,6 +444,7 @@ function saveGML(shpfile, callbakMsg){
 
       //藉型別陣列建構的 blob 來建立 URL
       let fileName = shpfilename + ".gml";
+      //"application/octet-stream"
       let blob = new Blob([res], {
         type: "application/octet-stream",
       });
@@ -411,7 +510,9 @@ onMounted(()=>{
         <!-- 操作列 -->
         <MDBRow id="btnbox" class="pb-3 border-bottom">
           <MDBCol col="12" class="border border-5 rounded-6 p-1">
-            <div class="txt-header" data-stroke="公共設施管線資料GML轉檔工具">公共設施管線資料GML轉檔工具</div>
+            <div class="txt-header" data-stroke="公共設施管線資料GML轉檔工具">
+              公共設施管線資料GML轉檔工具
+            </div>
           </MDBCol>
           <MDBCol col="8">
             <MDBFile 
@@ -423,13 +524,21 @@ onMounted(()=>{
           </MDBCol>
           <MDBCol class="d-flex align-items-center justify-content-center">
             <MDBBtn 
+              :disabled="selectCount==0"
               color="primary"
               @click="doExport"
             >產生GML</MDBBtn>
             <MDBBtn 
+              :disabled="gmlCount==0"
               color="primary"
               @click="downLoadAll"
             >全部下載</MDBBtn>
+            <MDBBtn 
+              :disabled="gmlCount<1"
+              class="ms-3"
+              color="primary"
+              @click="openGmlMergeModal()"
+            >合併GML</MDBBtn>
           </MDBCol>
         </MDBRow>
         <!-- 列表 -->
@@ -472,8 +581,55 @@ onMounted(()=>{
       v-model:selected="dataRows[index].schema" 
       />
   </div>
-  
-  
+  <!-- 合併GML功能表單 -->
+  <MDBModal
+    id="gmlMergeModal"
+    labelledby="GML合併設定"
+    v-model="gmlMergeModal"
+    staticBackdrop
+  >
+    <MDBModalBody>
+      <MDBContainer fluid>
+        <MDBRow class="border border-5 rounded-6 p-1 mb-2">
+          <MDBCol col='12' class="text-start mb-2">
+            <span class="bg-primary text-light circle me-2">1</span>選擇合併後檔頭
+          </MDBCol>
+          <MDBCol col='12' class="mb-2">
+            <MDBSelect 
+              v-model:options="gmlHeaderOptioins" 
+              v-model:selected="selectedHeader"
+              @change="changeGmlHeader"
+            />
+          </MDBCol>
+          <MDBCol col='12' class="mb-2">
+            <MDBTextarea label="檔頭內容" rows="3" v-model="gmlMergeHeaderEx" />
+          </MDBCol>
+        </MDBRow>
+        <MDBRow class="border border-5 rounded-6 p-1">
+          <MDBCol col='12' class="text-start">
+            <span class="bg-primary text-light circle me-2">2</span>選擇要合併的GML
+          </MDBCol>
+          <MDBDatatable 
+            fixedHeader
+            selectable  
+            multi
+            hover
+            striped
+            noFoundMessage="目前尚無資料"
+            :dataset="gmlMergeItem"
+            @selected-indexes="selecMergeItem($event)"
+            />
+        </MDBRow>
+      </MDBContainer>
+    </MDBModalBody>
+    <MDBModalFooter>
+      <MDBBtn color="secondary" @click="gmlMergeModal=false">關閉</MDBBtn>
+      <MDBBtn 
+        :disabled="gmlMergeHeaderEx=='' || mergeSelCount<2"
+        color="primary" 
+        @click="doMergeGML()">確認</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
   
 
 </template>
@@ -517,6 +673,14 @@ onMounted(()=>{
   content: attr(data-stroke);
 }
 
-
+span.circle{
+  display: inline-table;
+  border-radius: 50%;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0 0.1rem;
+  width: 1.5rem;
+  height: 1.5rem;
+} 
 
 </style>

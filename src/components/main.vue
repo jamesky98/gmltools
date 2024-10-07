@@ -143,14 +143,6 @@ import JSZip from "jszip"
     gmlMergeModal.value=true;
   }
 
-  const schemaTxt = computed(()=>{
-    gmlMregeData.value.map(row =>{
-      console.log('row',row.schema);
-      console.log('rowa',schemalist[row.schema].tag);
-      return schemalist[row.schema].tag
-    })
-  })
-
   const gmlMregeData = ref([]); // 實際原始資料使用
   const gmlMergeItem = computed(()=>{
     return {
@@ -184,7 +176,26 @@ import JSZip from "jszip"
       mergeTxt = mergeTxt + body1 + '\n'
     }
     mergeTxt = mergeTxt + '</UTL>\n'
-    console.log('mergeTxt',mergeTxt)
+    // console.log('mergeTxt',mergeTxt)
+
+    // 輸出下載連結
+    let selHeaderIndex = selectedHeader.value;
+    let gmlMergeItems = gmlMergeItem.value.rows;
+    let selHeaderName = gmlMergeItems[selHeaderIndex].shpfileName
+    let fileName = selHeaderName + "(合併).gml";
+
+    let blob = new Blob([mergeTxt], {
+      type: "application/octet-stream",
+    });
+
+    let href = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = href;
+    link.download = fileName;
+
+    link.click();
+    URL.revokeObjectURL(href);
+
   }
 
   async function changeGmlHeader(){

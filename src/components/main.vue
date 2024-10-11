@@ -166,14 +166,15 @@ import JSZip from "jszip"
     let headerTxt = gmlMergeHeaderEx.value;
     let mergeTxt = "";
     mergeTxt = mergeTxt + headerTxt + '\n';
-
+    // console.log('headerTxt',headerTxt);
     for(let i=0;i<x.length;i++){
       let gmlText = await gmlMergeItem.value.rows[x[i]].exblob.text();
       // console.log(gmlText);
       const headerEndIndex = gmlText.indexOf('<gml:featureMember>');
       const footerStartIndex = gmlText.lastIndexOf('</UTL>');
       const body1 = gmlText.slice(headerEndIndex, footerStartIndex);
-      mergeTxt = mergeTxt + body1 + '\n'
+      // console.log('body1',body1);
+      mergeTxt = mergeTxt + '    ' + body1
     }
     mergeTxt = mergeTxt + '</UTL>\n'
     // console.log('mergeTxt',mergeTxt)
@@ -195,7 +196,7 @@ import JSZip from "jszip"
 
     link.click();
     URL.revokeObjectURL(href);
-
+    gmlMergeModal.value= false;
   }
 
   async function changeGmlHeader(){

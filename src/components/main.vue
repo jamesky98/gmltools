@@ -413,14 +413,15 @@ async function doExport(){
           shpfiles[x[i]].errblob = errBlob;
           shpTable[x[i]].errmsg = errLink.outerHTML;
           // console.log('shpTable',shpTable) 
-        }else{
+        }
+        // else{
           gmlCount.value = gmlCount.value + 1;
           gmlMregeData.value.push({
             ...dataRows.value[x[i]],
             schemaName: schemalist[dataRows.value[x[i]].schema].tag});
           // console.log('tableRows: ',tableRows.value)
           // console.log('gmlMregeData: ',gmlMregeData.value)
-        }
+        // }
         
 
         msgArray.value.push('[訊息] '+shpName+' 轉檔完畢')

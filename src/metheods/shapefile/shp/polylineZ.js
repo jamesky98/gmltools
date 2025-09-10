@@ -7,12 +7,14 @@ export default function(record) {
     if(j===0){ i=i+16 }
     points[j].push(record.getFloat64(i, true));
   }
-  // M
-  for (j = 0; j < m; ++j, i += 8){
-    if(j===0){ i=i+16 }
-    points[j].push(record.getFloat64(i, true));
+  if(record.byteLength>i){
+    // M
+    for (j = 0; j < m; ++j, i += 8){
+      if(j===0){ i=i+16 }
+      points[j].push(record.getFloat64(i, true));
+    }
   }
-
+  console.log("P3: ", i);
   return n === 1
       ? {type: "LineString", coordinates: points}
       : {type: "MultiLineString", coordinates: parts.map(function(i, j) { return points.slice(i, parts[j + 1]); })};
